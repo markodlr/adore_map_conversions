@@ -14,6 +14,7 @@
 #pragma once
 #include "adore_map/map.hpp"
 #include "adore_map/route.hpp"
+#include "adore_ros2_msgs/msg/drivable_area.hpp"
 #include "adore_ros2_msgs/msg/map.hpp"
 #include "adore_ros2_msgs/msg/map_connection.hpp"
 #include "adore_ros2_msgs/msg/map_lane.hpp"
@@ -21,10 +22,11 @@
 #include "adore_ros2_msgs/msg/map_road.hpp"
 #include "adore_ros2_msgs/msg/route.hpp"
 
+#include "planning/drivable_area.hpp"
+
 namespace adore
 {
 namespace map
-
 {
 namespace conversions
 {
@@ -72,6 +74,12 @@ Route to_cpp_type( const adore_ros2_msgs::msg::Route& msg );
 
 // Convert from Route (C++ struct) to Route.msg
 adore_ros2_msgs::msg::Route to_ros_msg( const Route& route );
+
+// Convert from DrivableArea.msg to DrivableArea C++ type
+adore::planner::DrivableArea to_cpp_type( const adore_ros2_msgs::msg::DrivableArea& msg );
+
+// Convert from DrivableArea (C++ struct/class) to DrivableArea.msg
+adore_ros2_msgs::msg::DrivableArea to_ros_msg( const adore::planner::DrivableArea& area );
 
 } // namespace conversions
 } // namespace map

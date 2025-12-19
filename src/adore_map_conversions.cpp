@@ -77,6 +77,7 @@ to_ros_msg( const Lane& cpp_lane )
   ros_lane.road_id           = cpp_lane.road_id;
   ros_lane.speed_limit       = cpp_lane.speed_limit;
   ros_lane.left_of_reference = cpp_lane.left_of_reference;
+  ros_lane.lateral_offset    = cpp_lane.lateral_offset;
   return ros_lane;
 }
 
@@ -103,6 +104,7 @@ to_cpp_type( const adore_ros2_msgs::msg::MapLane& ros_lane )
   cpp_lane.road_id           = ros_lane.road_id;
   cpp_lane.speed_limit       = ros_lane.speed_limit;
   cpp_lane.left_of_reference = ros_lane.left_of_reference;
+  cpp_lane.lateral_offset    = ros_lane.lateral_offset;
   return cpp_lane;
 }
 
@@ -153,7 +155,9 @@ to_cpp_type( const adore_ros2_msgs::msg::MapRoad& ros_road )
   Road cpp_road;
   for( const auto& ros_lane : ros_road.lanes )
   {
-    cpp_road.lanes.insert( std::make_shared<Lane>( to_cpp_type( ros_lane ) ) );
+    auto lane_ptr = std::make_shared<Lane>( to_cpp_type( ros_lane ) );
+    cpp_road.lanes.insert( lane_ptr );
+    cpp_road.lane_offset_to_lane[ros_lane.lateral_offset] = lane_ptr;
   }
   cpp_road.name     = ros_road.name;
   cpp_road.one_way  = ros_road.one_way;
@@ -330,6 +334,75 @@ to_ros_msg( const Route& route )
   return msg;
 }
 
+// Convert from DrivableArea.msg to DrivableArea C++ type
+adore::planner::DrivableArea
+to_cpp_type( const adore_ros2_msgs::msg::DrivableArea& msg )
+{
+  using adore::map::MapPoint;
+  using adore::planner::DrivableArea;
+
+  DrivableArea cpp;
+
+  // reference_line
+  for( const auto& mp_msg : msg.reference_line )
+  {
+    MapPoint mp = to_cpp_type( mp_msg );
+    cpp.reference_line.emplace( mp.s, mp ); // key by longitudinal s
+  }
+
+  // left_boundary
+  for( const auto& mp_msg : msg.left_boundary )
+  {
+    MapPoint mp = to_cpp_type( mp_msg );
+    cpp.left_boundary.emplace( mp.s, mp );
+  }
+
+  // right_boundary
+  for( const auto& mp_msg : msg.right_boundary )
+  {
+    MapPoint mp = to_cpp_type( mp_msg );
+    cpp.right_boundary.emplace( mp.s, mp );
+  }
+
+  return cpp;
+}
+
+// Convert from DrivableArea (C++ struct/class) to DrivableArea.msg
+adore_ros2_msgs::msg::DrivableArea
+to_ros_msg( const adore::planner::DrivableArea& area )
+{
+  adore_ros2_msgs::msg::DrivableArea msg;
+
+  // reference_line
+  const auto& ref = area.reference_line;
+  msg.reference_line.reserve( ref.size() );
+  for( const auto& kv : ref )
+  {
+    const auto& mp = kv.second;
+    msg.reference_line.push_back( to_ros_msg( mp ) );
+  }
+
+  // left_boundary
+  const auto& left = area.left_boundary;
+  msg.left_boundary.reserve( left.size() );
+  for( const auto& kv : left )
+  {
+    const auto& mp = kv.second;
+    msg.left_boundary.push_back( to_ros_msg( mp ) );
+  }
+
+  // right_boundary
+  const auto& right = area.right_boundary;
+  msg.right_boundary.reserve( right.size() );
+  for( const auto& kv : right )
+  {
+    const auto& mp = kv.second;
+    msg.right_boundary.push_back( to_ros_msg( mp ) );
+  }
+
+  msg.header.frame_id = "world";
+  return msg;
+}
 
 } // namespace conversions
 } // namespace map

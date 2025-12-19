@@ -9,6 +9,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Dependencies
 find_package(ament_cmake REQUIRED)
 find_package(adore_map REQUIRED)
+find_package(adore_planning REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(adore_ros2_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
@@ -34,6 +35,7 @@ target_include_directories(${PROJECT_NAME}
 # Link and export dependencies
 ament_target_dependencies(${PROJECT_NAME}
   adore_map
+  adore_planning
   adore_math_conversions
   adore_ros2_msgs
   rclcpp
@@ -67,7 +69,7 @@ install(EXPORT export_${PROJECT_NAME}
 # ament exports for downstream consumers
 ament_export_include_directories(include)
 ament_export_dependencies(
-  adore_map adore_dynamics adore_math_conversions
+  adore_map adore_planning adore_dynamics adore_math_conversions
   adore_ros2_msgs rclcpp std_msgs tf2 tf2_ros tf2_geometry_msgs geometry_msgs
 )
 ament_export_targets(export_${PROJECT_NAME})

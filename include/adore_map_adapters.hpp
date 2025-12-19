@@ -23,6 +23,7 @@
 #include "adore_ros2_msgs/msg/map_road.hpp"
 #include "adore_ros2_msgs/msg/route.hpp"
 
+#include "planning/drivable_area.hpp"
 #include <rclcpp/type_adapter.hpp>
 
 namespace rclcpp
@@ -175,16 +176,39 @@ struct TypeAdapter<adore::map::Route, adore_ros2_msgs::msg::Route>
   }
 };
 
+// Adapter for DrivableArea
+template<>
+struct TypeAdapter<adore::planner::DrivableArea, adore_ros2_msgs::msg::DrivableArea>
+
+{
+  using is_specialized   = std::true_type;
+  using custom_type      = adore::planner::DrivableArea;
+  using ros_message_type = adore_ros2_msgs::msg::DrivableArea;
+
+  static void
+  convert_to_ros_message( const custom_type& src, ros_message_type& dst )
+  {
+    dst = adore::map::conversions::to_ros_msg( src );
+  }
+
+  static void
+  convert_to_custom( const ros_message_type& src, custom_type& dst )
+  {
+    dst = adore::map::conversions::to_cpp_type( src );
+  }
+};
+
 } // namespace rclcpp
 
 namespace adore
+
 {
 using MapPointAdapter     = rclcpp::TypeAdapter<map::MapPoint, adore_ros2_msgs::msg::MapPoint>;
 using LaneAdapter         = rclcpp::TypeAdapter<map::Lane, adore_ros2_msgs::msg::MapLane>;
 using RoadAdapter         = rclcpp::TypeAdapter<map::Road, adore_ros2_msgs::msg::MapRoad>;
 using RouteSectionAdapter = rclcpp::TypeAdapter<map::RouteSection, adore_ros2_msgs::msg::RouteSection>;
-
-using ConnectionAdapter = rclcpp::TypeAdapter<map::Connection, adore_ros2_msgs::msg::MapConnection>;
-using RouteAdapter      = rclcpp::TypeAdapter<map::Route, adore_ros2_msgs::msg::Route>;
-using MapAdapter        = rclcpp::TypeAdapter<map::Map, adore_ros2_msgs::msg::Map>;
+using ConnectionAdapter   = rclcpp::TypeAdapter<map::Connection, adore_ros2_msgs::msg::MapConnection>;
+using RouteAdapter        = rclcpp::TypeAdapter<map::Route, adore_ros2_msgs::msg::Route>;
+using DrivableAreaAdapter = rclcpp::TypeAdapter<planner::DrivableArea, adore_ros2_msgs::msg::DrivableArea>;
+using MapAdapter          = rclcpp::TypeAdapter<map::Map, adore_ros2_msgs::msg::Map>;
 } // namespace adore

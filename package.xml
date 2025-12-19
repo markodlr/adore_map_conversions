@@ -8,6 +8,7 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>adore_map</depend>
+  <depend>adore_planning</depend>
   <depend>rclcpp</depend>
   <depend>adore_ros2_msgs</depend>
   <depend>std_msgs</depend>
